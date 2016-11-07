@@ -78,6 +78,12 @@ func main() {
 	if err != nil {
 		exit(err)
 	}
+
+	err = Mlock()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "mlockall not supported on this system: %v\n", err)
+	}
+
 	keyPath := filepath.Join(workDir, ".key")
 	key, err := getKey(keyPath)
 	if err != nil {
