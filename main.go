@@ -6,7 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/howeyc/gopass"
+	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -37,8 +37,8 @@ func getKey(path string) (*rsa.PrivateKey, error) {
 		if !os.IsNotExist(err) {
 			exit(err)
 		}
-		fmt.Print("Generating new key.\nEnter password: ")
-		passwd, err := gopass.GetPasswdMasked()
+		fmt.Fprintln(os.Stderr, "Generating new key.\nEnter password: ")
+		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
 			return nil, err
 		}
@@ -48,8 +48,8 @@ func getKey(path string) (*rsa.PrivateKey, error) {
 			exit(err)
 		}
 	} else {
-		fmt.Print("Reading existing key.\nEnter password: ")
-		passwd, err := gopass.GetPasswdMasked()
+		fmt.Fprintln(os.Stderr, "Reading existing key.\nEnter password: ")
+		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
 			return nil, err
 		}
@@ -100,12 +100,10 @@ func main() {
 		if len(args) < 3 {
 			exit(errMissingValue)
 		}
-		// TODO: Add stdin reader
 		err := secret.Store(args[1], []byte(args[2]))
 		if err != nil {
 			exit(err)
 		}
-		fmt.Println(args[1])
 	case "get":
 		b, err := secret.Get(args[1])
 		if err != nil {
