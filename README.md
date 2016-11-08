@@ -1,4 +1,4 @@
-# secret
+# secret [![Build Status](https://travis-ci.org/stakhiv/secret.svg?branch=master)](https://travis-ci.org/stakhiv/secret)
 It's a secret
 
 # Usage
