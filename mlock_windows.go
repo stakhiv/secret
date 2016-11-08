@@ -6,6 +6,6 @@ import (
 	"errors"
 )
 
-func Mlock() {
+func Mlock() error {
 	return errors.New("mlock not supported")
 }
