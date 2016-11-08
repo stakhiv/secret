@@ -30,6 +30,16 @@ func usage() {
 
 const workDir = ".secret"
 
+func readPassword(msg string) ([]byte, error) {
+	fmt.Fprint(os.Stderr, msg)
+	passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return nil, err
+	}
+	fmt.Fprintln(os.Stderr)
+	return passwd, nil
+}
+
 func getKey(path string) (*rsa.PrivateKey, error) {
 	var key *rsa.PrivateKey
 	keyfile, err := os.Open(path)
@@ -37,8 +47,7 @@ func getKey(path string) (*rsa.PrivateKey, error) {
 		if !os.IsNotExist(err) {
 			exit(err)
 		}
-		fmt.Fprintln(os.Stderr, "Generating new key.\nEnter password: ")
-		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		passwd, err := readPassword("Generating new key.\nEnter password: ")
 		if err != nil {
 			return nil, err
 		}
@@ -48,8 +57,7 @@ func getKey(path string) (*rsa.PrivateKey, error) {
 			exit(err)
 		}
 	} else {
-		fmt.Fprintln(os.Stderr, "Reading existing key.\nEnter password: ")
-		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		passwd, err := readPassword("Enter key password: ")
 		if err != nil {
 			return nil, err
 		}
@@ -103,13 +111,20 @@ func main() {
 
 	switch args[0] {
 	case "store":
-		if len(args) < 3 {
-			exit(errMissingValue)
+		var value []byte
+		if len(args) == 3 {
+			value = []byte(args[2])
+		} else {
+			value, err = readPassword("Enter stored value: ")
+			if err != nil {
+				exit(err)
+			}
 		}
-		err := secret.Store(args[1], []byte(args[2]))
+		err := secret.Store(args[1], value)
 		if err != nil {
 			exit(err)
 		}
+		fmt.Println(args[1])
 	case "get":
 		b, err := secret.Get(args[1])
 		if err != nil {
