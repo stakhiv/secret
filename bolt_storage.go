@@ -46,6 +46,9 @@ func (s *BoltStorage) Get(key []byte) ([]byte, error) {
 			return errNotFound
 		}
 		res = b.Get(key)
+		if res == nil {
+			return errNotFound
+		}
 		return nil
 	})
 	if err != nil {
