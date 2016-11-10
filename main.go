@@ -142,6 +142,6 @@ func main() {
 }
 
 func exit(err error) {
-	fmt.Println(err)
+	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }
